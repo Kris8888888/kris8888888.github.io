@@ -31,46 +31,88 @@ img{display:block;max-width:100%;height:auto}
 .nav nav a[aria-current="page"]{color:var(--ink);text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--accent)}
 .nav nav a:hover{color:var(--ink)}
 
-/* 三维舞台：一组悬在空间里的玻璃薄板 + 透视网格地面 + 几粒光点。鼠标带动场景倾斜，滚动时各层按远近不同速度位移，空闲时缓慢漂浮 */
-.hero{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;
-  background:
-    radial-gradient(55% 45% at 50% 40%, #1B2438 0%, rgba(27,36,56,0) 70%),
-    radial-gradient(40% 30% at 78% 22%, rgba(157,176,255,.10) 0%, rgba(157,176,255,0) 70%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%)}
-.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:180px;background:linear-gradient(180deg,rgba(12,15,20,0),var(--bg));pointer-events:none;z-index:5}
-.stage{position:absolute;inset:0;perspective:1300px;perspective-origin:50% 42%}
-.scene{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));will-change:transform}
-.layer{position:absolute;left:50%;top:50%;transform-style:preserve-3d;will-change:transform;
-  transform:translate3d(calc(-50% + var(--x)), calc(-50% + var(--y) + var(--sy,0px) * var(--p,0)), var(--z)) rotateX(var(--ax,0deg)) rotateY(var(--ay,0deg)) rotateZ(var(--az,0deg))}
+/* 三维房间：五个面围成一条向远处延伸的走廊，鼠标环视、滚动向前推进，房间里悬着全息面板 */
+.hero{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;background:var(--bg)}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:160px;background:linear-gradient(180deg,rgba(12,15,20,0),var(--bg));pointer-events:none;z-index:5}
+.stage{position:absolute;inset:0;perspective:var(--P,1000px);perspective-origin:calc(50% + var(--ox,0px)) calc(50% + var(--oy,0px))}
+.room{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform;
+  --W:100vw;--H:100vh;--D:170vw;--P:1000px;
+  --line:rgba(157,176,255,.13);--line2:rgba(157,176,255,.06);
+  transform:translate3d(0,0,var(--dz,0px)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
+@supports(height:100svh){.room{--H:100svh}}
+.face{position:absolute;transform-style:preserve-3d;background-color:#0B0F16;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px),
+                   linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+  background-size:var(--g) var(--g),var(--g) var(--g),calc(var(--g)/4) calc(var(--g)/4),calc(var(--g)/4) calc(var(--g)/4);
+  --g:10vw}
+.face::after{content:"";position:absolute;inset:0;pointer-events:none}  /* 雾：越远越暗 */
+.f-back{left:50%;top:50%;width:var(--W);height:var(--H);transform:translate(-50%,-50%) translateZ(calc(-1 * var(--D)));
+  background-image:radial-gradient(38% 46% at 50% 52%, rgba(157,176,255,.20) 0%, rgba(157,176,255,.06) 45%, rgba(157,176,255,0) 72%),
+                   linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:100% 100%,var(--g) var(--g),var(--g) var(--g)}
+.f-back::after{background:linear-gradient(180deg,rgba(12,15,20,.55),rgba(12,15,20,.35) 50%,rgba(12,15,20,.7))}
+.f-floor{left:50%;top:100%;width:var(--W);height:var(--D);transform-origin:50% 0;transform:translateX(-50%) rotateX(-90deg)}
+.f-floor::after{background:linear-gradient(180deg,rgba(12,15,20,0) 0%,rgba(12,15,20,.45) 45%,rgba(12,15,20,.92) 100%),
+  linear-gradient(90deg,rgba(157,176,255,0) 38%,rgba(157,176,255,.10) 50%,rgba(157,176,255,0) 62%)}
+.f-ceil{left:50%;top:0;width:var(--W);height:var(--D);transform-origin:50% 100%;transform:translate(-50%,-100%) rotateX(90deg)}
+.f-ceil::after{background:linear-gradient(0deg,rgba(12,15,20,.15) 0%,rgba(12,15,20,.6) 45%,rgba(12,15,20,.95) 100%)}
+.f-left{left:0;top:50%;width:var(--D);height:var(--H);transform-origin:100% 50%;transform:translate(-100%,-50%) rotateY(-90deg)}
+.f-left::after{background:linear-gradient(270deg,rgba(12,15,20,.05) 0%,rgba(12,15,20,.5) 45%,rgba(12,15,20,.93) 100%)}
+.f-right{left:100%;top:50%;width:var(--D);height:var(--H);transform-origin:0 50%;transform:translateY(-50%) rotateY(90deg)}
+.f-right::after{background:linear-gradient(90deg,rgba(12,15,20,.05) 0%,rgba(12,15,20,.5) 45%,rgba(12,15,20,.93) 100%)}
 
-/* 地面：透视网格，向远处淡出 */
-.ground{position:absolute;inset:0;perspective:900px;perspective-origin:50% 30%;pointer-events:none}
-.floor{position:absolute;left:50%;top:58%;width:220vw;height:140vh;transform:translate(-50%,calc(var(--sy,0px) * -.06)) rotateX(80deg) rotateZ(var(--fz,0deg));transform-origin:50% 0;will-change:transform;
-  background-image:linear-gradient(rgba(157,176,255,.16) 1px, transparent 1px),linear-gradient(90deg, rgba(157,176,255,.16) 1px, transparent 1px);
-  background-size:72px 72px;background-position:50% 0;
-  -webkit-mask-image:radial-gradient(ellipse 45% 55% at 50% 0%, #000 0%, rgba(0,0,0,.5) 40%, transparent 75%);mask-image:radial-gradient(ellipse 45% 55% at 50% 0%, #000 0%, rgba(0,0,0,.5) 40%, transparent 75%)}
+/* 棱线：面与面相接处一条微光 */
+.f-floor,.f-ceil{box-shadow:inset 1px 0 0 rgba(157,176,255,.28),inset -1px 0 0 rgba(157,176,255,.28)}
+.f-left,.f-right{box-shadow:inset 0 1px 0 rgba(157,176,255,.28),inset 0 -1px 0 rgba(157,176,255,.28)}
+.f-back{box-shadow:inset 0 0 0 1px rgba(157,176,255,.35),0 0 60px rgba(157,176,255,.12)}
 
-/* 玻璃薄板：渐变描边 + 顶边高光 + 磨砂透出后面的板 */
-.slab{width:var(--w);height:var(--h);border-radius:16px;
-  background:linear-gradient(135deg, rgba(157,176,255,.13) 0%, rgba(157,176,255,.03) 55%, rgba(255,255,255,.05) 100%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.25), 0 50px 90px -40px rgba(0,0,0,.9);
-  backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);
-  animation:drift var(--t,12s) ease-in-out var(--d,0s) infinite alternate}
-.slab::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
-  background:linear-gradient(135deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.06) 35%, rgba(157,176,255,.10) 65%, rgba(157,176,255,.45) 100%);
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none}
-.slab::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  background:radial-gradient(60% 50% at 18% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 60%)}
-.slab.dim{opacity:.55;filter:blur(.6px)}
-@keyframes drift{from{translate:0 0;rotate:0deg}to{translate:0 -18px;rotate:.6deg}}
+/* 灯带：天花板一条长光带，两侧墙等距竖光柱，地面中央一道流动的扫描光 */
+.lamp{position:absolute;left:50%;top:0;width:1.2vw;height:100%;transform:translateX(-50%);
+  background:linear-gradient(180deg,rgba(220,228,255,.85),rgba(157,176,255,.35) 60%,rgba(157,176,255,0));
+  box-shadow:0 0 24px 6px rgba(157,176,255,.25);border-radius:0 0 8px 8px}
+.pillar{position:absolute;top:8%;bottom:8%;width:2px;background:linear-gradient(180deg,rgba(157,176,255,0),rgba(200,212,255,.8) 30%,rgba(200,212,255,.8) 70%,rgba(157,176,255,0));box-shadow:0 0 14px 2px rgba(157,176,255,.35)}
+.f-left .pillar{right:calc(var(--i) * 20% + 10%)}
+.f-right .pillar{left:calc(var(--i) * 20% + 10%)}
+.scan{position:absolute;left:0;right:0;height:14%;top:0;background:linear-gradient(180deg,rgba(157,176,255,0),rgba(157,176,255,.22) 50%,rgba(157,176,255,0));animation:scan 7s linear infinite}
+@keyframes scan{from{top:-14%}to{top:100%}}
 
-/* 光点 */
-.spark{width:5px;height:5px;border-radius:50%;background:#DDE4FF;box-shadow:0 0 10px 2px rgba(157,176,255,.7), 0 0 30px 6px rgba(157,176,255,.25);animation:twinkle var(--t,6s) ease-in-out var(--d,0s) infinite alternate}
-@keyframes twinkle{from{opacity:.35;scale:.8}to{opacity:1;scale:1.1}}
+/* 尽头墙：一道门户光环 */
+.portal{position:absolute;left:50%;top:52%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+  border:1px solid rgba(200,212,255,.75);box-shadow:0 0 30px rgba(157,176,255,.55),inset 0 0 40px rgba(157,176,255,.25);
+  background:radial-gradient(closest-side,rgba(157,176,255,.18),rgba(157,176,255,0));animation:breathe 6s ease-in-out infinite alternate}
+.portal::before{content:"";position:absolute;inset:-9%;border-radius:50%;border:1px dashed rgba(157,176,255,.35);animation:spin 40s linear infinite}
+.portal::after{content:"";position:absolute;inset:18%;border-radius:50%;border:1px solid rgba(200,212,255,.35)}
+@keyframes breathe{from{opacity:.75}to{opacity:1}}
+@keyframes spin{to{rotate:360deg}}
+
+/* 全息面板：悬在走廊里，磨砂玻璃 + 一组数据线条 */
+.holo{position:absolute;left:50%;top:50%;width:var(--w);height:var(--h);border-radius:10px;transform-style:preserve-3d;will-change:transform;
+  transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y)),var(--z)) rotateY(var(--ay,0deg)) rotateX(var(--ax,0deg));
+  background:linear-gradient(135deg,rgba(157,176,255,.12),rgba(157,176,255,.03) 60%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 30px 60px -30px rgba(0,0,0,.9);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:hover var(--t,10s) ease-in-out var(--d,0s) infinite alternate}
+.holo::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,.05) 40%,rgba(157,176,255,.45));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+.holo i{position:absolute;left:8%;right:8%;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(200,212,255,.75) var(--l),rgba(157,176,255,.15) var(--l))}
+.holo i:nth-child(1){top:22%;--l:70%}.holo i:nth-child(2){top:38%;--l:45%}.holo i:nth-child(3){top:54%;--l:82%}.holo i:nth-child(4){top:70%;--l:30%}
+.holo b{position:absolute;left:8%;top:8%;width:10px;height:10px;border-radius:50%;background:#DDE4FF;box-shadow:0 0 10px 2px rgba(157,176,255,.7)}
+@keyframes hover{from{translate:0 0}to{translate:0 -14px}}
+.h1{--w:24vw;--h:15vw;--x:-48vw;--y:-14vh;--z:-70vw;--ay:32deg;--t:11s;--d:-2s}
+.h2{--w:20vw;--h:12vw;--x:50vw;--y:-18vh;--z:-100vw;--ay:-30deg;--t:13s;--d:-6s}
+.h3{--w:15vw;--h:9vw;--x:27vw;--y:20vh;--z:-34vw;--ay:-20deg;--ax:6deg;--t:9s;--d:-4s}
+.h4{--w:11vw;--h:6.5vw;--x:-26vw;--y:24vh;--z:-20vw;--ay:18deg;--ax:8deg;--t:8s;--d:-1s}
+
+/* 光尘 */
+.spark{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:#DDE4FF;box-shadow:0 0 10px 2px rgba(157,176,255,.7);
+  transform:translate3d(calc(-50% + var(--x)),calc(-50% + var(--y)),var(--z));animation:twinkle var(--t,6s) ease-in-out var(--d,0s) infinite alternate}
+@keyframes twinkle{from{opacity:.3;scale:.7}to{opacity:1;scale:1.2}}
+.k1{--x:-34vw;--y:-24vh;--z:-40vw;--t:5s;--d:-1s}.k2{--x:36vw;--y:6vh;--z:-70vw;--t:7s;--d:-3s}.k3{--x:-12vw;--y:30vh;--z:-25vw;--t:6s;--d:-2s}
+.k4{--x:8vw;--y:-30vh;--z:-110vw;--t:8s;--d:-5s}.k5{--x:16vw;--y:-2vh;--z:-140vw;--t:6s;--d:-4s}
 
 .title{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;pointer-events:none;padding-top:2vh}
 .title-in{text-align:center;transform:translate3d(var(--tx,0px),var(--ty,0px),0);will-change:transform}
-.title-in::before{content:"";position:absolute;inset:-30% -40%;z-index:-1;background:radial-gradient(50% 50% at 50% 45%, rgba(12,15,20,.85) 0%, rgba(12,15,20,0) 70%)}
+.title-in::before{content:"";position:absolute;inset:-30% -40%;z-index:-1;background:radial-gradient(50% 50% at 50% 45%, rgba(12,15,20,.6) 0%, rgba(12,15,20,0) 70%)}
 .title h1{font-family:var(--serif);font-weight:700;font-size:clamp(64px,11vw,132px);line-height:1;letter-spacing:.04em;
   text-shadow:0 2px 0 rgba(0,0,0,.4), 0 30px 60px rgba(0,0,0,.6)}
 .title p{margin-top:14px;font-size:clamp(15px,1.6vw,19px);color:var(--ink-2)}
@@ -78,30 +120,20 @@ img{display:block;max-width:100%;height:auto}
 .title .cta:hover{background:var(--accent-hover)}
 .hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:6;font-size:12px;color:var(--ink-3)}
 
-/* 桌面构图 */
-.s1{--w:34vw;--h:22vw;--x:-30vw;--y:-6vh;--z:-520px;--ay:22deg;--ax:6deg;--az:-3deg;--p:-.14;--t:14s;--d:-3s}
-.s2{--w:30vw;--h:19vw;--x:31vw;--y:-16vh;--z:-420px;--ay:-24deg;--ax:5deg;--az:2deg;--p:-.11;--t:13s;--d:-7s}
-.s3{--w:19vw;--h:12vw;--x:-22vw;--y:24vh;--z:-120px;--ay:16deg;--ax:10deg;--az:-2deg;--p:-.02;--t:11s;--d:-1s}
-.s4{--w:21vw;--h:13vw;--x:26vw;--y:22vh;--z:-60px;--ay:-18deg;--ax:8deg;--az:3deg;--p:.02;--t:12s;--d:-5s}
-.s5{--w:12vw;--h:8vw;--x:-9vw;--y:-30vh;--z:120px;--ay:10deg;--ax:14deg;--az:-6deg;--p:.10;--t:10s;--d:-2s}
-.s6{--w:10vw;--h:6.5vw;--x:15vw;--y:33vh;--z:220px;--ay:-12deg;--ax:12deg;--az:4deg;--p:.16;--t:9s;--d:-6s}
-.s7{--w:7vw;--h:4.5vw;--x:12vw;--y:-27vh;--z:300px;--ay:-6deg;--ax:16deg;--az:-8deg;--p:.20;--t:8s;--d:-4s}
-.k1{--x:-36vw;--y:-28vh;--z:-300px;--p:-.08;--t:5s;--d:-1s}
-.k2{--x:38vw;--y:8vh;--z:-200px;--p:-.05;--t:7s;--d:-3s}
-.k3{--x:-14vw;--y:36vh;--z:160px;--p:.12;--t:6s;--d:-2s}
-.k4{--x:5vw;--y:-38vh;--z:40px;--p:.06;--t:8s;--d:-5s}
-
 @media (max-width:720px){
   .hero{min-height:620px}
-  .stage{perspective:900px}
-  .floor{top:60%;background-size:48px 48px}
-  .s1{--w:64vw;--h:42vw;--x:-30vw;--y:-22vh}
-  .s2{--w:58vw;--h:36vw;--x:34vw;--y:-30vh}
-  .s3{--w:40vw;--h:26vw;--x:-26vw;--y:26vh}
-  .s4{--w:44vw;--h:28vw;--x:30vw;--y:22vh}
-  .s5{--w:26vw;--h:17vw;--x:-14vw;--y:-34vh}
-  .s6{--w:22vw;--h:14vw;--x:22vw;--y:36vh}
-  .s7{--w:16vw;--h:10vw;--x:18vw;--y:-14vh}
+  .room{--D:260vw;--P:640px}
+  .face{--g:22vw}
+  .lamp{width:3vw}
+  .portal{width:60%}
+  .h1{--w:46vw;--h:28vw;--x:-32vw;--y:-26vh;--z:-100vw}
+  .h2{--w:40vw;--h:24vw;--x:34vw;--y:-30vh;--z:-150vw}
+  .h3{--w:32vw;--h:19vw;--x:30vw;--y:26vh;--z:-60vw}
+  .h4{--w:24vw;--h:14vw;--x:-30vw;--y:30vh;--z:-36vw}
+}
+@media (prefers-reduced-motion:reduce){
+  .room{transform:none!important}
+  .scan,.portal,.portal::before,.holo,.spark{animation:none!important}
 }
 
 /* 首页下方：五个入口，一行一条，左边缩略图 */
@@ -131,28 +163,26 @@ img{display:block;max-width:100%;height:auto}
 .foot a:hover{color:var(--accent)}
 
 @media (prefers-reduced-motion:reduce){
-  .scene{transform:none!important}
-  .slab,.spark{animation:none!important}
-  .layer{transform:translate3d(calc(-50% + var(--x)), calc(-50% + var(--y)), var(--z)) rotateX(var(--ax,0deg)) rotateY(var(--ay,0deg)) rotateZ(var(--az,0deg))!important}
   html{scroll-behavior:auto}
 }
 </style>
 </head>
 <body>
-<div class="nav"><a class="brand" href="./">工具架</a><nav><a href="./" aria-current="page">首页</a><a href="tools.html">全部工具</a><a href="https://github.com/Kris8888888" rel="noopener">GitHub</a></nav></div>
+<div class="nav"><a class="brand" href="./">工具架</a><nav><a href="./" aria-current="page">首页</a><a href="tools.html">全部工具</a><a href="https://github.com/Kris8888888" target="_blank" rel="noopener">GitHub</a></nav></div>
 
 <section class="hero" aria-label="首页">
   <div class="stage" id="stage">
-    <div class="ground" aria-hidden="true"><div class="floor" id="floor"></div></div>
-    <div class="scene" id="scene">
-      <div class="layer slab dim s1" aria-hidden="true"></div>
-      <div class="layer slab dim s2" aria-hidden="true"></div>
-      <div class="layer slab s3" aria-hidden="true"></div>
-      <div class="layer slab s4" aria-hidden="true"></div>
-      <div class="layer slab s5" aria-hidden="true"></div>
-      <div class="layer slab s6" aria-hidden="true"></div>
-      <div class="layer slab s7" aria-hidden="true"></div>
-      <i class="layer spark k1" aria-hidden="true"></i><i class="layer spark k2" aria-hidden="true"></i><i class="layer spark k3" aria-hidden="true"></i><i class="layer spark k4" aria-hidden="true"></i>
+    <div class="room" id="room" aria-hidden="true">
+      <div class="face f-back"><div class="portal"></div></div>
+      <div class="face f-floor"><div class="scan"></div></div>
+      <div class="face f-ceil"><div class="lamp"></div></div>
+      <div class="face f-left"><i class="pillar" style="--i:0"></i><i class="pillar" style="--i:1"></i><i class="pillar" style="--i:2"></i><i class="pillar" style="--i:3"></i></div>
+      <div class="face f-right"><i class="pillar" style="--i:0"></i><i class="pillar" style="--i:1"></i><i class="pillar" style="--i:2"></i><i class="pillar" style="--i:3"></i></div>
+      <div class="holo h1"><b></b><i></i><i></i><i></i><i></i></div>
+      <div class="holo h2"><b></b><i></i><i></i><i></i><i></i></div>
+      <div class="holo h3"><b></b><i></i><i></i><i></i><i></i></div>
+      <div class="holo h4"><b></b><i></i><i></i><i></i><i></i></div>
+      <i class="spark k1"></i><i class="spark k2"></i><i class="spark k3"></i><i class="spark k4"></i><i class="spark k5"></i>
     </div>
   </div>
   <div class="title" id="title">
@@ -162,76 +192,74 @@ img{display:block;max-width:100%;height:auto}
       <a class="cta" href="#list">看看都有什么</a>
     </div>
   </div>
-  <div class="hint">移动鼠标或滚动，场景会跟着动</div>
+  <div class="hint">移动鼠标环视，滚动走进房间</div>
 </section>
 
 <section class="wrap list" id="list">
   <h2>都有什么</h2>
   <p class="lede">两个网页，三个 Mac 应用。想看截图和说明去<a href="tools.html">全部工具</a>。</p>
   <div class="row">
-    <a class="thumb" href="https://kris8888888.github.io/market-cloud/" tabindex="-1" aria-hidden="true"><img src="assets/market-cloud.jpg" alt="" loading="lazy"></a>
-    <div><h3><a href="https://kris8888888.github.io/market-cloud/">大盘云图</a><small>网页</small></h3><p>A 股全市场热力图，按申万行业和市值铺开，红涨绿跌，行情实时。</p></div>
-    <div class="act"><a class="btn" href="https://kris8888888.github.io/market-cloud/">打开</a><a class="alt" href="https://github.com/Kris8888888/market-cloud" rel="noopener">源码</a></div>
+    <a class="thumb" href="https://kris8888888.github.io/market-cloud/" tabindex="-1" aria-hidden="true" target="_blank" rel="noopener"><img src="assets/market-cloud.jpg" alt="" loading="lazy"></a>
+    <div><h3><a href="https://kris8888888.github.io/market-cloud/" target="_blank" rel="noopener">大盘云图</a><small>网页</small></h3><p>A 股全市场热力图，按申万行业和市值铺开，红涨绿跌，行情实时。</p></div>
+    <div class="act"><a class="btn" href="https://kris8888888.github.io/market-cloud/" target="_blank" rel="noopener">打开</a><a class="alt" href="https://github.com/Kris8888888/market-cloud" target="_blank" rel="noopener">源码</a></div>
   </div>
   <div class="row">
-    <a class="thumb" href="https://kris8888888.github.io/etf-workbench/" tabindex="-1" aria-hidden="true"><img src="assets/etf-workbench.jpg" alt="" loading="lazy"></a>
-    <div><h3><a href="https://kris8888888.github.io/etf-workbench/">ETF 轮动记录台</a><small>网页</small></h3><p>ETF 轮动、全天候、海龟策略的一页式回测台，参数随手改，净值当场画。</p></div>
-    <div class="act"><a class="btn" href="https://kris8888888.github.io/etf-workbench/">打开</a><a class="alt" href="https://github.com/Kris8888888/etf-workbench" rel="noopener">源码</a></div>
+    <a class="thumb" href="https://kris8888888.github.io/etf-workbench/" tabindex="-1" aria-hidden="true" target="_blank" rel="noopener"><img src="assets/etf-workbench.jpg" alt="" loading="lazy"></a>
+    <div><h3><a href="https://kris8888888.github.io/etf-workbench/" target="_blank" rel="noopener">ETF 轮动记录台</a><small>网页</small></h3><p>ETF 轮动、全天候、海龟策略的一页式回测台，参数随手改，净值当场画。</p></div>
+    <div class="act"><a class="btn" href="https://kris8888888.github.io/etf-workbench/" target="_blank" rel="noopener">打开</a><a class="alt" href="https://github.com/Kris8888888/etf-workbench" target="_blank" rel="noopener">源码</a></div>
   </div>
   <div class="row">
-    <a class="thumb" href="https://github.com/Kris8888888/mail-digest" tabindex="-1" aria-hidden="true"><img src="assets/mail-digest.jpg" alt="" loading="lazy"></a>
-    <div><h3><a href="https://github.com/Kris8888888/mail-digest">邮件日报</a><small>macOS · 1.3</small></h3><p>到点自动读「邮件」App，AI 写成一分钟能读完的日报，弹一张卡片，每条都能跳回原邮件。</p></div>
-    <div class="act"><a class="btn" href="https://github.com/Kris8888888/mail-digest/releases/download/v1.3/MailDigest-1.3.dmg">下载 .dmg</a><a class="alt" href="https://github.com/Kris8888888/mail-digest" rel="noopener">说明</a></div>
+    <a class="thumb" href="https://github.com/Kris8888888/mail-digest" tabindex="-1" aria-hidden="true" target="_blank" rel="noopener"><img src="assets/mail-digest.jpg" alt="" loading="lazy"></a>
+    <div><h3><a href="https://github.com/Kris8888888/mail-digest" target="_blank" rel="noopener">邮件日报</a><small>macOS · 1.3</small></h3><p>到点自动读「邮件」App，AI 写成一分钟能读完的日报，弹一张卡片，每条都能跳回原邮件。</p></div>
+    <div class="act"><a class="btn" href="https://github.com/Kris8888888/mail-digest/releases/download/v1.3/MailDigest-1.3.dmg" target="_blank" rel="noopener">下载 .dmg</a><a class="alt" href="https://github.com/Kris8888888/mail-digest" target="_blank" rel="noopener">说明</a></div>
   </div>
   <div class="row">
-    <a class="thumb strip" href="https://github.com/Kris8888888/xiaotiao" tabindex="-1" aria-hidden="true"><img src="assets/xiaotiao.png" alt="" loading="lazy"></a>
-    <div><h3><a href="https://github.com/Kris8888888/xiaotiao">小条</a><small>macOS · 1.2</small></h3><p>桌面上一条置顶半透明的小行情条，鼠标穿透、一键隐藏、能伪装成时钟。</p></div>
-    <div class="act"><a class="btn" href="https://github.com/Kris8888888/xiaotiao/releases/download/v1.2/Xiaotiao-1.2.dmg">下载 .dmg</a><a class="alt" href="https://github.com/Kris8888888/xiaotiao" rel="noopener">说明</a></div>
+    <a class="thumb strip" href="https://github.com/Kris8888888/xiaotiao" tabindex="-1" aria-hidden="true" target="_blank" rel="noopener"><img src="assets/xiaotiao.png" alt="" loading="lazy"></a>
+    <div><h3><a href="https://github.com/Kris8888888/xiaotiao" target="_blank" rel="noopener">小条</a><small>macOS · 1.2</small></h3><p>桌面上一条置顶半透明的小行情条，鼠标穿透、一键隐藏、能伪装成时钟。</p></div>
+    <div class="act"><a class="btn" href="https://github.com/Kris8888888/xiaotiao/releases/download/v1.2/Xiaotiao-1.2.dmg" target="_blank" rel="noopener">下载 .dmg</a><a class="alt" href="https://github.com/Kris8888888/xiaotiao" target="_blank" rel="noopener">说明</a></div>
   </div>
   <div class="row">
-    <a class="thumb" href="https://github.com/Kris8888888/GujiOCR" tabindex="-1" aria-hidden="true"><img src="assets/gujiocr.jpg" alt="" loading="lazy"></a>
-    <div><h3><a href="https://github.com/Kris8888888/GujiOCR">古籍OCR</a><small>macOS · 1.0</small></h3><p>把扫描的竖排古籍批量识别成可检索文本，全程本机运行。</p></div>
-    <div class="act"><a class="btn" href="https://github.com/Kris8888888/GujiOCR/releases/download/1.0/OCR-.zip">下载 .zip</a><a class="alt" href="https://github.com/Kris8888888/GujiOCR" rel="noopener">说明</a></div>
+    <a class="thumb" href="https://github.com/Kris8888888/GujiOCR" tabindex="-1" aria-hidden="true" target="_blank" rel="noopener"><img src="assets/gujiocr.jpg" alt="" loading="lazy"></a>
+    <div><h3><a href="https://github.com/Kris8888888/GujiOCR" target="_blank" rel="noopener">古籍OCR</a><small>macOS · 1.0</small></h3><p>把扫描的竖排古籍批量识别成可检索文本，全程本机运行。</p></div>
+    <div class="act"><a class="btn" href="https://github.com/Kris8888888/GujiOCR/releases/download/1.0/OCR-.zip" target="_blank" rel="noopener">下载 .zip</a><a class="alt" href="https://github.com/Kris8888888/GujiOCR" target="_blank" rel="noopener">说明</a></div>
   </div>
 </section>
 
 <footer class="foot">
   <span>做一个放一个，坏了会修。</span>
-  <a href="https://github.com/Kris8888888" rel="noopener">github.com/Kris8888888</a>
+  <a href="https://github.com/Kris8888888" target="_blank" rel="noopener">github.com/Kris8888888</a>
 </footer>
 
 <script>
 (function(){
-  const scene = document.getElementById('scene'), stage = document.getElementById('stage'), floor = document.getElementById('floor'), title = document.querySelector('.title-in');
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
-  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, sy = 0;   // 目标角度与当前角度，做缓动
-  function tick(){
-    cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
-    scene.style.setProperty('--ry', cx.toFixed(3) + 'deg');
-    scene.style.setProperty('--rx', cy.toFixed(3) + 'deg');
-    floor.style.setProperty('--fz', (cx * -0.6).toFixed(3) + 'deg');
-    title.style.setProperty('--tx', (cx * -1.6).toFixed(2) + 'px');
-    title.style.setProperty('--ty', (cy * 1.6 + sy * 0.12).toFixed(2) + 'px');
-    raf = (Math.abs(tx - cx) > 0.01 || Math.abs(ty - cy) > 0.01) ? requestAnimationFrame(tick) : 0;
+  const room = document.getElementById('room'), stage = document.getElementById('stage'), title = document.querySelector('.title-in');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0, sy = 0;
+  function apply(){
+    room.style.setProperty('--ry', (cx * 5).toFixed(3) + 'deg');       // 环视：左右转头
+    room.style.setProperty('--rx', (-cy * 3).toFixed(3) + 'deg');      // 抬头低头
+    stage.style.setProperty('--ox', (cx * 60).toFixed(1) + 'px');      // 视点跟着挪，近处动得多
+    stage.style.setProperty('--oy', (cy * 40).toFixed(1) + 'px');
+    title.style.setProperty('--tx', (cx * -10).toFixed(2) + 'px');
+    title.style.setProperty('--ty', (cy * -6 + sy * 0.12).toFixed(2) + 'px');
+    room.style.setProperty('--dz', (sy * 0.9).toFixed(1) + 'px');      // 滚动：向房间深处推进
   }
-  function aim(nx, ny){ tx = nx * 9; ty = -ny * 6; if (!raf) raf = requestAnimationFrame(tick); }
-  // 鼠标：整个场景跟着指针倾斜
+  function tick(){
+    cx += (tx - cx) * 0.07; cy += (ty - cy) * 0.07;
+    apply();
+    raf = (Math.abs(tx - cx) > 0.002 || Math.abs(ty - cy) > 0.002) ? requestAnimationFrame(tick) : 0;
+  }
+  function aim(nx, ny){ tx = Math.max(-1, Math.min(1, nx)); ty = Math.max(-1, Math.min(1, ny)); if (!raf) raf = requestAnimationFrame(tick); }
   stage.addEventListener('pointermove', e => {
     if (e.pointerType !== 'mouse') return;
     const r = stage.getBoundingClientRect();
     aim((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1);
   });
   stage.addEventListener('pointerleave', () => aim(0, 0));
-  // 手机：有陀螺仪权限就用姿态，没有就靠滚动
-  if (window.DeviceOrientationEvent && !('onpointermove' in stage && matchMedia('(hover:hover)').matches)) {
-    window.addEventListener('deviceorientation', e => {
-      if (e.gamma == null) return;
-      aim(Math.max(-1, Math.min(1, e.gamma / 30)), Math.max(-1, Math.min(1, (e.beta - 45) / 30)));
-    }, { passive: true });
+  if (window.DeviceOrientationEvent && !matchMedia('(hover:hover)').matches) {
+    window.addEventListener('deviceorientation', e => { if (e.gamma != null) aim(e.gamma / 30, (e.beta - 45) / 30); }, { passive: true });
   }
-  // 滚动：各层按 --p 不同速度位移，形成视差
-  function onScroll(){ const y = Math.min(window.scrollY, window.innerHeight); if (y !== sy) { sy = y; scene.style.setProperty('--sy', y + 'px'); floor.style.setProperty('--sy', y + 'px'); title.style.setProperty('--ty', (cy * 1.6 + sy * 0.12).toFixed(2) + 'px'); } }
+  function onScroll(){ const y = Math.min(window.scrollY, window.innerHeight); if (y !== sy) { sy = y; apply(); } }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 })();
