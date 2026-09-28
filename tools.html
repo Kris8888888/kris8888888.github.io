@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>全部工具 · 工具架</title>
+<meta name="description" content="自己做的几个小工具的入口：网页的直接打开，Mac 应用直接下载。">
+<meta name="theme-color" content="#0C0F14">
+<style>
+:root{
+  --bg:#0C0F14; --surface:#141920; --well:#0A0D11;
+  --ink:#EEEAE2; --ink-2:#A3A9B2; --ink-3:#6E757F; --rule:#242B34;
+  --accent:#9DB0FF; --accent-ink:#0B1030; --accent-hover:#BCC8FF;
+  --serif:"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","SimSun","Songti TC",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 16px calc(40px + env(safe-area-inset-bottom))}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent-hover)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+img{display:block;max-width:100%;height:auto}
+.wrap{max-width:1040px;margin:0 auto}
+
+/* 导航 */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0 0}
+.nav .brand{font-family:var(--serif);font-weight:700;font-size:18px;color:var(--ink)}
+.nav nav{display:flex;gap:22px;font-size:14px}
+.nav nav a{color:var(--ink-2)}
+.nav nav a[aria-current="page"]{color:var(--ink);text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--accent)}
+.nav nav a:hover{color:var(--ink)}
+/* 页头 */
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:40px 0 28px;border-bottom:1px solid var(--rule)}
+.head h1{font-family:var(--serif);font-weight:700;font-size:38px;line-height:1.15;letter-spacing:.01em}
+.head p{margin-top:10px;color:var(--ink-2);max-width:34em}
+
+/* 分区标题：真正的标题，不加眉标 */
+h2{font-family:var(--serif);font-weight:700;font-size:24px;line-height:1.3;margin:44px 0 6px}
+.lede{color:var(--ink-2);margin-bottom:20px}
+
+/* 网页工具：两块大图，整块可点 */
+.web{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.tile{background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.tile:hover{border-color:var(--ink-3)}
+.tile .go{display:block;color:inherit}
+.tile .go:hover{color:inherit}
+.tile .shot{background:var(--well);aspect-ratio:16/10;overflow:hidden}
+.tile .shot img{width:100%;height:100%;object-fit:cover;object-position:top left}
+.tile .body{padding:16px 18px 8px}
+.tile h3{font-family:var(--serif);font-weight:700;font-size:22px;line-height:1.3;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tile h3 .open{font-family:var(--sans);font-weight:500;font-size:14px;color:var(--accent);white-space:nowrap}
+.tile:hover h3 .open{color:var(--accent-hover);text-decoration:underline;text-underline-offset:3px}
+.tile p{color:var(--ink-2);font-size:15px;margin-top:6px}
+.tile .src{padding:0 18px 16px;font-size:13px;color:var(--ink-3)}
+.tile .src a{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
+.tile .src a:hover{color:var(--accent)}
+
+/* Mac 应用：清单式，图在左，说明在右，行间一条细线 */
+.apps{border-top:1px solid var(--rule)}
+.app{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:28px;padding:26px 0;border-bottom:1px solid var(--rule);align-items:center}
+.app .shot{background:var(--well);border-radius:8px;overflow:hidden;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;padding:0}
+.app .shot img{width:100%;height:100%;object-fit:cover;object-position:top left}
+.app .shot.strip{background:#2A2E33;padding:12% 8%}
+.app .shot.strip img{width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.45))}
+.app h3{font-family:var(--serif);font-weight:700;font-size:24px;line-height:1.3}
+.app .meta{color:var(--ink-3);font-size:13px;margin-top:2px}
+.app p{color:var(--ink-2);margin-top:10px;max-width:30em}
+.actions{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:16px}
+.btn{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:8px 16px;border-radius:999px;font-size:14px;font-weight:500;line-height:1.3}
+.btn:hover{background:var(--accent-hover);color:var(--accent-ink)}
+.actions .alt{font-size:14px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
+.actions .alt:hover{color:var(--accent)}
+.note{margin-top:14px;font-size:13px;color:var(--ink-3);max-width:40em}
+
+.foot{margin-top:48px;padding-top:18px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot a{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
+.foot a:hover{color:var(--accent)}
+
+@media (max-width:720px){
+  .head{flex-direction:column;align-items:flex-start;padding:32px 0 22px}
+  .head h1{font-size:30px}
+  h2{font-size:21px;margin-top:36px}
+  .web{grid-template-columns:1fr;gap:16px}
+  .tile h3{font-size:20px}
+  .app{grid-template-columns:1fr;gap:14px;padding:22px 0}
+  .app h3{font-size:21px}
+}
+@media (prefers-reduced-motion:reduce){.tile{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><a class="brand" href="./">工具架</a><nav><a href="./">首页</a><a href="tools.html" aria-current="page">全部工具</a><a href="https://github.com/Kris8888888" rel="noopener">GitHub</a></nav></div>
+  <header class="head">
+    <div>
+      <h1>全部工具</h1>
+      <p>网页的点开就能用，Mac 应用下载装上就行。</p>
+    </div>
+  </header>
+
+  <h2>打开就能用</h2>
+  <p class="lede">两个看行情的页面，手机和电脑都行，数据每个交易日自动更新。</p>
+  <section class="web">
+    <article class="tile">
+      <a class="go" href="https://kris8888888.github.io/market-cloud/">
+        <div class="shot"><img src="assets/market-cloud.jpg" alt="大盘云图截图：按行业铺开的红绿热力图" loading="lazy"></div>
+        <div class="body">
+          <h3>大盘云图<span class="open">打开</span></h3>
+          <p>A 股全市场热力图，按申万行业和市值铺开，红涨绿跌。行情实时，滚轮或双指放大看小票。</p>
+        </div>
+      </a>
+      <div class="src"><a href="https://github.com/Kris8888888/market-cloud" rel="noopener">源码</a></div>
+    </article>
+    <article class="tile">
+      <a class="go" href="https://kris8888888.github.io/etf-workbench/">
+        <div class="shot"><img src="assets/etf-workbench.jpg" alt="ETF 轮动记录台截图：净值曲线与策略参数" loading="lazy"></div>
+        <div class="body">
+          <h3>ETF 轮动记录台<span class="open">打开</span></h3>
+          <p>ETF 轮动、全天候、海龟策略的一页式回测台，参数随手改，净值当场画。分红按再投资还原过。</p>
+        </div>
+      </a>
+      <div class="src"><a href="https://github.com/Kris8888888/etf-workbench" rel="noopener">源码</a></div>
+    </article>
+  </section>
+
+  <h2>装在 Mac 上</h2>
+  <p class="lede">三个 macOS 应用。下载后拖进「应用程序」，第一次打开若提示无法验证开发者，右键选「打开」即可。</p>
+  <section class="apps">
+    <article class="app">
+      <div class="shot"><img src="assets/mail-digest.jpg" alt="邮件日报主窗口：按需要处理、知悉即可、通知营销三组列出邮件摘要" loading="lazy"></div>
+      <div>
+        <h3>邮件日报</h3>
+        <div class="meta">macOS · 1.3 版 · 1.9 MB</div>
+        <p>到点自动读「邮件」App 收件箱，AI 写成一分钟能读完的日报，在屏幕角落弹一张卡片。每一条都能跳回原邮件、一键拟回复、勾掉、设提醒。</p>
+        <div class="actions">
+          <a class="btn" href="https://github.com/Kris8888888/mail-digest/releases/download/v1.3/MailDigest-1.3.dmg">下载 .dmg</a>
+          <a class="alt" href="https://github.com/Kris8888888/mail-digest/releases/download/v1.3/MailDigest-1.3.zip">.zip 版</a>
+          <a class="alt" href="https://github.com/Kris8888888/mail-digest" rel="noopener">源码与说明</a>
+        </div>
+      </div>
+    </article>
+    <article class="app">
+      <div class="shot strip"><img src="assets/xiaotiao.png" alt="小条：一条深色半透明的行情条，显示三只股票的价格和涨跌幅" loading="lazy"></div>
+      <div>
+        <h3>小条</h3>
+        <div class="meta">macOS · 1.2 版 · 1 MB</div>
+        <p>桌面上一条置顶、半透明、不抢焦点的小行情条，显示自选的 A 股和美股。鼠标能穿透，一个快捷键藏起来，能伪装成时钟，开会投屏时自动隐藏。</p>
+        <div class="actions">
+          <a class="btn" href="https://github.com/Kris8888888/xiaotiao/releases/download/v1.2/Xiaotiao-1.2.dmg">下载 .dmg</a>
+          <a class="alt" href="https://github.com/Kris8888888/xiaotiao/releases/download/v1.2/Xiaotiao-1.2.zip">.zip 版</a>
+          <a class="alt" href="https://github.com/Kris8888888/xiaotiao" rel="noopener">源码与说明</a>
+        </div>
+      </div>
+    </article>
+    <article class="app">
+      <div class="shot"><img src="assets/gujiocr.jpg" alt="古籍OCR 门厅：选一本书开始识别" loading="lazy"></div>
+      <div>
+        <h3>古籍OCR</h3>
+        <div class="meta">macOS · 1.0 版 · 65 MB，含识别模型</div>
+        <p>把扫描的竖排古籍批量识别成可检索的文本。先切列再重拼成横排送识别模型，点校本召回 94%。全程在本机跑，书不外传。</p>
+        <div class="actions">
+          <a class="btn" href="https://github.com/Kris8888888/GujiOCR/releases/download/1.0/OCR-.zip">下载 .zip</a>
+          <a class="alt" href="https://github.com/Kris8888888/GujiOCR" rel="noopener">源码与说明</a>
+        </div>
+        <p class="note">识别结果只用来定位「这句话在第几页」，正式引文请回原图核对。</p>
+      </div>
+    </article>
+  </section>
+
+  <footer class="foot">
+    <span>做一个放一个，坏了会修。</span>
+    <a href="https://github.com/Kris8888888" rel="noopener">github.com/Kris8888888</a>
+  </footer>
+</div>
+</body>
+</html>

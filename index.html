@@ -4,182 +4,193 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>工具架</title>
-<meta name="description" content="自己做的几个小工具的入口：网页的直接打开，Mac 应用直接下载。">
-<meta name="theme-color" content="#EEF1F4" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#111417" media="(prefers-color-scheme: dark)">
+<meta name="description" content="自己做来自己用的几个小工具：看行情的网页、装在 Mac 上的小应用。">
+<meta name="theme-color" content="#0C0F14">
 <style>
 :root{
-  --bg:#EEF1F4; --surface:#FFFFFF; --well:#E3E7EB;
-  --ink:#15181C; --ink-2:#5F666E; --ink-3:#8B9199; --rule:#D9DEE3;
-  --accent:#1F3EC2; --accent-ink:#FFFFFF; --accent-hover:#172F94;
+  --bg:#0C0F14; --bg-2:#11161E; --surface:#141920;
+  --ink:#EEEAE2; --ink-2:#A3A9B2; --ink-3:#6E757F; --rule:#242B34;
+  --accent:#9DB0FF; --accent-ink:#0B1030; --accent-hover:#BCC8FF;
   --serif:"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","SimSun","Songti TC",serif;
   --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#111417; --surface:#191D22; --well:#0D1013;
-    --ink:#EBEDEF; --ink-2:#9AA1A9; --ink-3:#6C737B; --rule:#2A3037;
-    --accent:#8AA0FF; --accent-ink:#0E1330; --accent-hover:#A9B9FF;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#111417; --surface:#191D22; --well:#0D1013;
-  --ink:#EBEDEF; --ink-2:#9AA1A9; --ink-3:#6C737B; --rule:#2A3037;
-  --accent:#8AA0FF; --accent-ink:#0E1330; --accent-hover:#A9B9FF;
-}
 *{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--bg)}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 16px calc(40px + env(safe-area-inset-bottom))}
+html{background:var(--bg);scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:var(--accent);text-decoration:none}
 a:hover{color:var(--accent-hover)}
-a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
 img{display:block;max-width:100%;height:auto}
-.wrap{max-width:1040px;margin:0 auto}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
 
-/* 页头 */
-.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:44px 0 28px;border-bottom:1px solid var(--ink)}
-.head h1{font-family:var(--serif);font-weight:700;font-size:38px;line-height:1.15;letter-spacing:.01em}
-.head p{margin-top:10px;color:var(--ink-2);max-width:34em}
-.head .gh{white-space:nowrap;padding-bottom:6px;font-size:15px}
+/* 导航 */
+.nav{position:absolute;left:0;right:0;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:calc(18px + env(safe-area-inset-top)) 20px 0;max-width:1080px;margin:0 auto}
+.nav .brand{font-family:var(--serif);font-weight:700;font-size:18px;color:var(--ink)}
+.nav nav{display:flex;gap:22px;font-size:14px}
+.nav nav a{color:var(--ink-2)}
+.nav nav a[aria-current="page"]{color:var(--ink);text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--accent)}
+.nav nav a:hover{color:var(--ink)}
 
-/* 分区标题：真正的标题，不加眉标 */
-h2{font-family:var(--serif);font-weight:700;font-size:24px;line-height:1.3;margin:44px 0 6px}
-.lede{color:var(--ink-2);margin-bottom:20px}
+/* 三维舞台：截图是悬在空间里的平面，鼠标带动整个场景倾斜，滚动时各层按远近不同速度位移 */
+.hero{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;
+  background:
+    radial-gradient(60% 50% at 50% 42%, #1A2233 0%, rgba(26,34,51,0) 70%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%)}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:160px;background:linear-gradient(180deg,rgba(12,15,20,0),var(--bg));pointer-events:none;z-index:5}
+.stage{position:absolute;inset:0;perspective:1400px;perspective-origin:50% 45%}
+.scene{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));will-change:transform}
+.layer{position:absolute;left:50%;top:50%;width:var(--w);transform-style:preserve-3d;
+  transform:translate3d(calc(-50% + var(--x)), calc(-50% + var(--y) + var(--sy,0px) * var(--p)), var(--z)) rotateY(var(--ay,0deg)) rotateX(var(--ax,0deg));
+  will-change:transform}
+.layer.shot{border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:#0A0D11;
+  box-shadow:0 30px 60px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(0,0,0,.4)}
+.layer.shot img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top left}
+.layer.far{filter:brightness(.62) saturate(.85)}
+.layer.mid{filter:brightness(.82)}
+.layer.strip img{width:100%;border-radius:8px;filter:drop-shadow(0 24px 40px rgba(0,0,0,.7))}
+.layer figcaption{position:absolute;left:10px;bottom:8px;font-size:12px;color:rgba(238,234,226,.7);background:rgba(10,13,17,.55);padding:2px 8px;border-radius:4px;backdrop-filter:blur(4px)}
 
-/* 网页工具：两块大图，整块可点 */
-.web{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.tile{background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden;transition:border-color .15s}
-.tile:hover{border-color:var(--ink-3)}
-.tile .go{display:block;color:inherit}
-.tile .go:hover{color:inherit}
-.tile .shot{background:var(--well);aspect-ratio:16/10;overflow:hidden}
-.tile .shot img{width:100%;height:100%;object-fit:cover;object-position:top left}
-.tile .body{padding:16px 18px 8px}
-.tile h3{font-family:var(--serif);font-weight:700;font-size:22px;line-height:1.3;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.tile h3 .open{font-family:var(--sans);font-weight:500;font-size:14px;color:var(--accent);white-space:nowrap}
-.tile:hover h3 .open{color:var(--accent-hover);text-decoration:underline;text-underline-offset:3px}
-.tile p{color:var(--ink-2);font-size:15px;margin-top:6px}
-.tile .src{padding:0 18px 16px;font-size:13px;color:var(--ink-3)}
-.tile .src a{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
-.tile .src a:hover{color:var(--accent)}
+.layer.title{width:auto;text-align:center;pointer-events:none}
+.layer.title::before{content:"";position:absolute;inset:-30% -40%;background:radial-gradient(50% 50% at 50% 45%, rgba(12,15,20,.85) 0%, rgba(12,15,20,0) 70%);z-index:-1;transform:translateZ(-1px)}
+.layer.title h1{font-family:var(--serif);font-weight:700;font-size:clamp(64px,11vw,132px);line-height:1;letter-spacing:.04em;
+  text-shadow:0 2px 0 rgba(0,0,0,.4), 0 30px 60px rgba(0,0,0,.6)}
+.layer.title p{margin-top:14px;font-size:clamp(15px,1.6vw,19px);color:var(--ink-2)}
+.layer.title .cta{pointer-events:auto;display:inline-block;margin-top:26px;padding:11px 22px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-weight:500;font-size:15px;box-shadow:0 14px 34px -10px rgba(157,176,255,.6)}
+.layer.title .cta:hover{background:var(--accent-hover)}
+.hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:6;font-size:12px;color:var(--ink-3)}
 
-/* Mac 应用：清单式，图在左，说明在右，行间一条细线 */
-.apps{border-top:1px solid var(--rule)}
-.app{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:28px;padding:26px 0;border-bottom:1px solid var(--rule);align-items:center}
-.app .shot{background:var(--well);border-radius:8px;overflow:hidden;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;padding:0}
-.app .shot img{width:100%;height:100%;object-fit:cover;object-position:top left}
-.app .shot.strip{background:#2A2E33;padding:12% 8%}
-.app .shot.strip img{width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 10px 22px rgba(0,0,0,.45))}
-.app h3{font-family:var(--serif);font-weight:700;font-size:24px;line-height:1.3}
-.app .meta{color:var(--ink-3);font-size:13px;margin-top:2px}
-.app p{color:var(--ink-2);margin-top:10px;max-width:30em}
-.actions{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:16px}
-.btn{display:inline-block;background:var(--accent);color:var(--accent-ink);padding:8px 16px;border-radius:999px;font-size:14px;font-weight:500;line-height:1.3}
-.btn:hover{background:var(--accent-hover);color:var(--accent-ink)}
-.actions .alt{font-size:14px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
-.actions .alt:hover{color:var(--accent)}
-.note{margin-top:14px;font-size:13px;color:var(--ink-3);max-width:40em}
+/* 桌面构图：五张图围着标题，远近不一 */
+.l-market{--w:44vw;--x:30vw;--y:-14vh;--z:-360px;--ay:-18deg;--p:-.10}
+.l-etf{--w:38vw;--x:-33vw;--y:-2vh;--z:-560px;--ay:16deg;--p:-.16}
+.l-mail{--w:30vw;--x:-25vw;--y:26vh;--z:40px;--ay:12deg;--ax:3deg;--p:.06}
+.l-guji{--w:26vw;--x:29vw;--y:27vh;--z:120px;--ay:-12deg;--p:.10}
+.l-strip{--w:26vw;--x:4vw;--y:-30vh;--z:260px;--ay:-4deg;--ax:8deg;--p:.18}
+.l-title{--x:0px;--y:2vh;--z:200px;--p:.02}
 
-.foot{margin-top:48px;padding-top:18px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+@media (max-width:720px){
+  .hero{min-height:620px}
+  .stage{perspective:900px}
+  .l-market{--w:78vw;--x:22vw;--y:-24vh;--z:-360px;--ay:-14deg}
+  .l-etf{--w:70vw;--x:-28vw;--y:-6vh;--z:-560px;--ay:12deg}
+  .l-mail{--w:56vw;--x:-24vw;--y:27vh;--z:20px;--ay:10deg}
+  .l-guji{--w:48vw;--x:28vw;--y:30vh;--z:90px;--ay:-10deg}
+  .l-strip{--w:58vw;--x:6vw;--y:-30vh;--z:200px}
+  .l-market{--y:-20vh}
+  .l-title{--y:4vh}
+  .layer figcaption{display:none}
+}
+
+/* 首页下方：五个入口一行一条 */
+.list{padding:36px 0 8px}
+.list h2{font-family:var(--serif);font-weight:700;font-size:24px;line-height:1.3;margin-bottom:6px}
+.list .lede{color:var(--ink-2);margin-bottom:18px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 24px;align-items:center;padding:18px 0;border-top:1px solid var(--rule)}
+.row:last-child{border-bottom:1px solid var(--rule)}
+.row h3{font-family:var(--serif);font-weight:700;font-size:21px;line-height:1.3;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.row h3 small{font-family:var(--sans);font-weight:400;font-size:12px;color:var(--ink-3)}
+.row p{color:var(--ink-2);font-size:15px;margin-top:4px;max-width:44em}
+.row .act{white-space:nowrap;display:flex;gap:14px;align-items:center}
+.row .btn{display:inline-block;padding:7px 15px;border-radius:999px;background:var(--surface);border:1px solid var(--rule);color:var(--ink);font-size:14px}
+.row .btn:hover{border-color:var(--accent);color:var(--accent-hover)}
+.row .alt{font-size:13px;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
+.row .alt:hover{color:var(--accent)}
+@media (max-width:720px){.row{grid-template-columns:1fr}.row .act{margin-top:2px}}
+
+.foot{margin:44px auto 0;padding:18px 16px calc(40px + env(safe-area-inset-bottom));max-width:1040px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .foot a{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
 .foot a:hover{color:var(--accent)}
 
-@media (max-width:720px){
-  .head{flex-direction:column;align-items:flex-start;padding:32px 0 22px}
-  .head h1{font-size:30px}
-  .head .gh{padding:0}
-  h2{font-size:21px;margin-top:36px}
-  .web{grid-template-columns:1fr;gap:16px}
-  .tile h3{font-size:20px}
-  .app{grid-template-columns:1fr;gap:14px;padding:22px 0}
-  .app h3{font-size:21px}
+@media (prefers-reduced-motion:reduce){
+  .scene{transform:none!important}
+  .layer{transform:translate3d(calc(-50% + var(--x)), calc(-50% + var(--y)), var(--z)) rotateY(var(--ay,0deg)) rotateX(var(--ax,0deg))!important}
+  html{scroll-behavior:auto}
 }
-@media (prefers-reduced-motion:reduce){.tile{transition:none}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="head">
-    <div>
-      <h1>工具架</h1>
-      <p>自己做来自己用的几个小东西。网页的点开就能用，Mac 应用下载装上就行。</p>
+<div class="nav"><a class="brand" href="./">工具架</a><nav><a href="./" aria-current="page">首页</a><a href="tools.html">全部工具</a><a href="https://github.com/Kris8888888" rel="noopener">GitHub</a></nav></div>
+
+<section class="hero" aria-label="首页">
+  <div class="stage" id="stage">
+    <div class="scene" id="scene">
+      <figure class="layer shot far l-etf"><img src="assets/etf-workbench.jpg" alt="ETF 轮动记录台"><figcaption>ETF 轮动记录台</figcaption></figure>
+      <figure class="layer shot mid l-market"><img src="assets/market-cloud.jpg" alt="大盘云图"><figcaption>大盘云图</figcaption></figure>
+      <figure class="layer shot l-mail"><img src="assets/mail-digest.jpg" alt="邮件日报"><figcaption>邮件日报</figcaption></figure>
+      <figure class="layer shot l-guji"><img src="assets/gujiocr.jpg" alt="古籍OCR"><figcaption>古籍OCR</figcaption></figure>
+      <figure class="layer strip l-strip"><img src="assets/xiaotiao.png" alt="小条"></figure>
+      <div class="layer title l-title">
+        <h1>工具架</h1>
+        <p>自己做来自己用的几个小东西</p>
+        <a class="cta" href="#list">看看都有什么</a>
+      </div>
     </div>
-    <a class="gh" href="https://github.com/Kris8888888" rel="noopener">代码都在 GitHub</a>
-  </header>
+  </div>
+  <div class="hint">移动鼠标或滚动，看它们在空间里挪动</div>
+</section>
 
-  <h2>打开就能用</h2>
-  <p class="lede">两个看行情的页面，手机和电脑都行，数据每个交易日自动更新。</p>
-  <section class="web">
-    <article class="tile">
-      <a class="go" href="https://kris8888888.github.io/market-cloud/">
-        <div class="shot"><img src="assets/market-cloud.jpg" alt="大盘云图截图：按行业铺开的红绿热力图" loading="lazy"></div>
-        <div class="body">
-          <h3>大盘云图<span class="open">打开</span></h3>
-          <p>A 股全市场热力图，按申万行业和市值铺开，红涨绿跌。行情实时，滚轮或双指放大看小票。</p>
-        </div>
-      </a>
-      <div class="src"><a href="https://github.com/Kris8888888/market-cloud" rel="noopener">源码</a></div>
-    </article>
-    <article class="tile">
-      <a class="go" href="https://kris8888888.github.io/etf-workbench/">
-        <div class="shot"><img src="assets/etf-workbench.jpg" alt="ETF 轮动记录台截图：净值曲线与策略参数" loading="lazy"></div>
-        <div class="body">
-          <h3>ETF 轮动记录台<span class="open">打开</span></h3>
-          <p>ETF 轮动、全天候、海龟策略的一页式回测台，参数随手改，净值当场画。分红按再投资还原过。</p>
-        </div>
-      </a>
-      <div class="src"><a href="https://github.com/Kris8888888/etf-workbench" rel="noopener">源码</a></div>
-    </article>
-  </section>
+<section class="wrap list" id="list">
+  <h2>都有什么</h2>
+  <p class="lede">两个网页，三个 Mac 应用。想看截图和说明去<a href="tools.html">全部工具</a>。</p>
+  <div class="row">
+    <div><h3>大盘云图<small>网页</small></h3><p>A 股全市场热力图，按申万行业和市值铺开，红涨绿跌，行情实时。</p></div>
+    <div class="act"><a class="btn" href="https://kris8888888.github.io/market-cloud/">打开</a><a class="alt" href="https://github.com/Kris8888888/market-cloud" rel="noopener">源码</a></div>
+  </div>
+  <div class="row">
+    <div><h3>ETF 轮动记录台<small>网页</small></h3><p>ETF 轮动、全天候、海龟策略的一页式回测台，参数随手改，净值当场画。</p></div>
+    <div class="act"><a class="btn" href="https://kris8888888.github.io/etf-workbench/">打开</a><a class="alt" href="https://github.com/Kris8888888/etf-workbench" rel="noopener">源码</a></div>
+  </div>
+  <div class="row">
+    <div><h3>邮件日报<small>macOS · 1.3</small></h3><p>到点自动读「邮件」App，AI 写成一分钟能读完的日报，弹一张卡片，每条都能跳回原邮件。</p></div>
+    <div class="act"><a class="btn" href="https://github.com/Kris8888888/mail-digest/releases/download/v1.3/MailDigest-1.3.dmg">下载 .dmg</a><a class="alt" href="https://github.com/Kris8888888/mail-digest" rel="noopener">说明</a></div>
+  </div>
+  <div class="row">
+    <div><h3>小条<small>macOS · 1.2</small></h3><p>桌面上一条置顶半透明的小行情条，鼠标穿透、一键隐藏、能伪装成时钟。</p></div>
+    <div class="act"><a class="btn" href="https://github.com/Kris8888888/xiaotiao/releases/download/v1.2/Xiaotiao-1.2.dmg">下载 .dmg</a><a class="alt" href="https://github.com/Kris8888888/xiaotiao" rel="noopener">说明</a></div>
+  </div>
+  <div class="row">
+    <div><h3>古籍OCR<small>macOS · 1.0</small></h3><p>把扫描的竖排古籍批量识别成可检索文本，全程本机运行。</p></div>
+    <div class="act"><a class="btn" href="https://github.com/Kris8888888/GujiOCR/releases/download/1.0/OCR-.zip">下载 .zip</a><a class="alt" href="https://github.com/Kris8888888/GujiOCR" rel="noopener">说明</a></div>
+  </div>
+</section>
 
-  <h2>装在 Mac 上</h2>
-  <p class="lede">三个 macOS 应用。下载后拖进「应用程序」，第一次打开若提示无法验证开发者，右键选「打开」即可。</p>
-  <section class="apps">
-    <article class="app">
-      <div class="shot"><img src="assets/mail-digest.jpg" alt="邮件日报主窗口：按需要处理、知悉即可、通知营销三组列出邮件摘要" loading="lazy"></div>
-      <div>
-        <h3>邮件日报</h3>
-        <div class="meta">macOS · 1.3 版 · 1.9 MB</div>
-        <p>到点自动读「邮件」App 收件箱，AI 写成一分钟能读完的日报，在屏幕角落弹一张卡片。每一条都能跳回原邮件、一键拟回复、勾掉、设提醒。</p>
-        <div class="actions">
-          <a class="btn" href="https://github.com/Kris8888888/mail-digest/releases/download/v1.3/MailDigest-1.3.dmg">下载 .dmg</a>
-          <a class="alt" href="https://github.com/Kris8888888/mail-digest/releases/download/v1.3/MailDigest-1.3.zip">.zip 版</a>
-          <a class="alt" href="https://github.com/Kris8888888/mail-digest" rel="noopener">源码与说明</a>
-        </div>
-      </div>
-    </article>
-    <article class="app">
-      <div class="shot strip"><img src="assets/xiaotiao.png" alt="小条：一条深色半透明的行情条，显示三只股票的价格和涨跌幅" loading="lazy"></div>
-      <div>
-        <h3>小条</h3>
-        <div class="meta">macOS · 1.2 版 · 1 MB</div>
-        <p>桌面上一条置顶、半透明、不抢焦点的小行情条，显示自选的 A 股和美股。鼠标能穿透，一个快捷键藏起来，能伪装成时钟，开会投屏时自动隐藏。</p>
-        <div class="actions">
-          <a class="btn" href="https://github.com/Kris8888888/xiaotiao/releases/download/v1.2/Xiaotiao-1.2.dmg">下载 .dmg</a>
-          <a class="alt" href="https://github.com/Kris8888888/xiaotiao/releases/download/v1.2/Xiaotiao-1.2.zip">.zip 版</a>
-          <a class="alt" href="https://github.com/Kris8888888/xiaotiao" rel="noopener">源码与说明</a>
-        </div>
-      </div>
-    </article>
-    <article class="app">
-      <div class="shot"><img src="assets/gujiocr.jpg" alt="古籍OCR 门厅：选一本书开始识别" loading="lazy"></div>
-      <div>
-        <h3>古籍OCR</h3>
-        <div class="meta">macOS · 1.0 版 · 65 MB，含识别模型</div>
-        <p>把扫描的竖排古籍批量识别成可检索的文本。先切列再重拼成横排送识别模型，点校本召回 94%。全程在本机跑，书不外传。</p>
-        <div class="actions">
-          <a class="btn" href="https://github.com/Kris8888888/GujiOCR/releases/download/1.0/OCR-.zip">下载 .zip</a>
-          <a class="alt" href="https://github.com/Kris8888888/GujiOCR" rel="noopener">源码与说明</a>
-        </div>
-        <p class="note">识别结果只用来定位「这句话在第几页」，正式引文请回原图核对。</p>
-      </div>
-    </article>
-  </section>
+<footer class="foot">
+  <span>做一个放一个，坏了会修。</span>
+  <a href="https://github.com/Kris8888888" rel="noopener">github.com/Kris8888888</a>
+</footer>
 
-  <footer class="foot">
-    <span>做一个放一个，坏了会修。</span>
-    <a href="https://github.com/Kris8888888" rel="noopener">github.com/Kris8888888</a>
-  </footer>
-</div>
+<script>
+(function(){
+  const scene = document.getElementById('scene'), stage = document.getElementById('stage');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;   // 目标角度与当前角度，做缓动
+  function tick(){
+    cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
+    scene.style.setProperty('--ry', cx.toFixed(3) + 'deg');
+    scene.style.setProperty('--rx', cy.toFixed(3) + 'deg');
+    raf = (Math.abs(tx - cx) > 0.01 || Math.abs(ty - cy) > 0.01) ? requestAnimationFrame(tick) : 0;
+  }
+  function aim(nx, ny){ tx = nx * 9; ty = -ny * 6; if (!raf) raf = requestAnimationFrame(tick); }
+  // 鼠标：整个场景跟着指针倾斜
+  stage.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    const r = stage.getBoundingClientRect();
+    aim((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1);
+  });
+  stage.addEventListener('pointerleave', () => aim(0, 0));
+  // 手机：有陀螺仪权限就用姿态，没有就靠滚动
+  if (window.DeviceOrientationEvent && !('onpointermove' in stage && matchMedia('(hover:hover)').matches)) {
+    window.addEventListener('deviceorientation', e => {
+      if (e.gamma == null) return;
+      aim(Math.max(-1, Math.min(1, e.gamma / 30)), Math.max(-1, Math.min(1, (e.beta - 45) / 30)));
+    }, { passive: true });
+  }
+  // 滚动：各层按 --p 不同速度位移，形成视差
+  let sy = 0;
+  function onScroll(){ const y = Math.min(window.scrollY, window.innerHeight); if (y !== sy) { sy = y; scene.style.setProperty('--sy', y + 'px'); } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+</script>
 </body>
 </html>
