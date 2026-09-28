@@ -35,7 +35,7 @@ img{display:block;max-width:100%;height:auto}
 .nav nav a:hover{color:var(--ink)}
 
 /* 三维房间：五个面围成一条向远处延伸的走廊，鼠标环视、滚动向前推进，房间里悬着全息面板 */
-.hero{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;background:var(--bg)}
+.hero{position:sticky;top:0;z-index:0;height:100vh;height:100svh;min-height:560px;overflow:hidden;background:var(--bg)}   /* 钉住：列表从房间上面滑过，房间本身不随页面滚走 */
 .hero::after{content:"";position:absolute;inset:auto 0 0 0;height:160px;background:linear-gradient(180deg,rgba(12,15,20,0),var(--bg));pointer-events:none;z-index:5}
 .stage{position:absolute;inset:0;perspective:var(--P,1000px);perspective-origin:calc(50% + var(--ox,0px)) calc(50% + var(--oy,0px))}
 .room{position:absolute;inset:0;transform-style:preserve-3d;will-change:transform;
@@ -145,7 +145,8 @@ img{display:block;max-width:100%;height:auto}
 }
 
 /* 首页下方：五个入口，一行一条，左边缩略图 */
-.list{padding:36px 16px 8px}
+.list{position:relative;z-index:2;background:var(--bg);padding:36px 0 8px;box-shadow:0 -40px 60px -20px rgba(12,15,20,.95)}
+.list::before{content:"";position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(157,176,255,.35),transparent)}
 .list h2{font-family:var(--serif);font-weight:700;font-size:24px;line-height:1.3;margin-bottom:6px}
 .list .lede{color:var(--ink-2);margin-bottom:18px}
 .row{display:grid;grid-template-columns:220px minmax(0,1fr) auto;gap:8px 24px;align-items:center;padding:18px 12px;margin:0 -12px;border-top:1px solid var(--rule);border-radius:10px;transition:background-color .15s}
@@ -174,7 +175,7 @@ img{display:block;max-width:100%;height:auto}
 .row button.alt{background:none;border:0;cursor:pointer;font:inherit;padding:0}
 @media (max-width:720px){.row{grid-template-columns:1fr;gap:10px}.row .act{margin-top:2px}}
 
-.foot{margin:44px auto 0;padding:18px 16px calc(40px + env(safe-area-inset-bottom));max-width:1040px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot{position:relative;z-index:2;background:var(--bg);margin:44px auto 0;padding:18px 16px calc(40px + env(safe-area-inset-bottom));max-width:1040px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:13px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .foot a{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule)}
 .foot a:hover{color:var(--accent)}
 
@@ -211,7 +212,7 @@ img{display:block;max-width:100%;height:auto}
   <div class="hint"><span class="m">移动鼠标环视，滚动走进房间</span><span class="t">往下滑，走进房间</span></div>
 </section>
 
-<section class="wrap list" id="list">
+<section class="list" id="list"><div class="wrap">
   <h2>都有什么</h2>
   <p class="lede">两个网页，三个 Mac 应用。想看截图和说明去<a href="tools.html">全部工具</a>。</p>
   <div class="row">
@@ -239,7 +240,7 @@ img{display:block;max-width:100%;height:auto}
     <div><h3><a href="https://github.com/Kris8888888/GujiOCR" target="_blank" rel="noopener">古籍OCR</a><small>macOS · 1.0 · 更新于 8 月 26 日</small></h3><p>把扫描的竖排古籍批量识别成可检索文本，全程本机运行。</p></div>
     <div class="act"><a class="btn" href="https://github.com/Kris8888888/GujiOCR/releases/download/1.0/OCR-.zip" target="_blank" rel="noopener">下载 .zip</a><a class="alt" href="https://github.com/Kris8888888/GujiOCR" target="_blank" rel="noopener">说明</a><button class="alt copy" type="button" data-url="https://github.com/Kris8888888/GujiOCR/releases/download/1.0/OCR-.zip">复制链接</button></div>
   </div>
-</section>
+</div></section>
 
 <div class="toast" id="toast" role="status"></div>
 <footer class="foot">
@@ -260,7 +261,7 @@ img{display:block;max-width:100%;height:auto}
       stage.style.setProperty('--oy', (cy * 40).toFixed(1) + 'px');
       title.style.setProperty('--tx', (cx * -10).toFixed(2) + 'px');
       title.style.setProperty('--ty', (cy * -6 + sy * 0.12).toFixed(2) + 'px');
-      room.style.setProperty('--dz', Math.min(sy * 0.55, 380).toFixed(1) + 'px');   // 推进封顶，近边不会越过镜头
+      room.style.setProperty('--dz', Math.min(sy * 0.45, 360).toFixed(1) + 'px');   // 推进封顶，近边不会越过镜头
     }
     const h = hero.offsetHeight || 1;
     hero.style.setProperty('--fade', Math.max(0, 1 - sy / (h * 0.55)).toFixed(3));   // 标题随滚动淡出
